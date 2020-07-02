@@ -1,0 +1,17 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- Esconder titulo do app -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- barra de aplicativos nao deve aparecer -->
+        <item name="android:windowActionBar">false</item>
+        <!-- app deve executar em tela cheia -->
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+</resources>
