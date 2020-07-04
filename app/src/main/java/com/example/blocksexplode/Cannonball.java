@@ -23,9 +23,9 @@ public class Cannonball extends GameElement{
     public boolean isOnScreen() { return onScreen; }
 
     //teste se a bala colide com o GameElement dado
-    public boolean collidesWidht(GameElement element)
+    public boolean collidesWith(GameElement element)
     {
-        return (Rect.intersects(shape, element.shape) && velocityX>0);
+        return (Rect.intersects(shape, element.shape) && velocityX > 0);
     }
 
     //inverte a velocidade horizontal da bala

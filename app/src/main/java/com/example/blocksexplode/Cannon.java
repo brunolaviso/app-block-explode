@@ -7,35 +7,35 @@ import android.graphics.Point;
 
 public class Cannon {
     private int baseRadius;
-    private int barrelLenght;
+    private int barrelLength;
     private double barrelAngle;
     private Cannonball cannonball;
     private Point barrelEnd = new Point();
     private Paint paint = new Paint();
     private CannonView view;
 
-    public Cannon(CannonView view, int baseRadius, int barrelLenght, int barrelWidth){
+    public Cannon(CannonView view, int baseRadius, int barrelLength, int barrelWidth){
         this.view = view;
         this.baseRadius = baseRadius;
-        this.barrelLenght = barrelLenght;
+        this.barrelLength = barrelLength;
         paint.setStrokeWidth(barrelWidth);
         paint.setColor(Color.BLACK);
         align(Math.PI / 2);
     }
 
-    private void align(double barrelAngle) {
+    public void align(double barrelAngle) {
         this.barrelAngle = barrelAngle;
-        barrelEnd.x = (int) (barrelLenght * Math.sin(barrelAngle));
-        barrelEnd.y = (int) (-barrelLenght * Math.cos(barrelAngle)) + view.getScreenWidth() / 2;
+        barrelEnd.x = (int) (barrelLength * Math.sin(barrelAngle));
+        barrelEnd.y = (int) (-barrelLength * Math.cos(barrelAngle)) + view.getScreenHeight() / 2;
     }
 
     public void fireCannonball(){
-        int velocityX = (int) (CannonView.CANNONBALL_SPEED_PERCENT * view.getScreenWidth() / Math.sin(barrelAngle));
-        int velocityY = (int) (CannonView.CANNONBALL_SPEED_PERCENT * view.getScreenWidth() / -Math.cos(barrelAngle));
+        int velocityX = (int) (CannonView.CANNONBALL_SPEED_PERCENT * view.getScreenWidth() * Math.sin(barrelAngle));
+        int velocityY = (int) (CannonView.CANNONBALL_SPEED_PERCENT * view.getScreenWidth() * -Math.cos(barrelAngle));
 
-        int radius = (int) (view.getScreenWidth() * CannonView.CANNONBALL_RADIUS_PERCENT);
+        int radius = (int) (view.getScreenHeight() * CannonView.CANNONBALL_RADIUS_PERCENT);
 
-        cannonball = new Cannonball(view, Color.BLACK, CannonView.CANNON_SOUND_ID, -radius, view.getScreenWidth() / 2 - radius, radius, velocityX, velocityY);
+        cannonball = new Cannonball(view, Color.BLUE, CannonView.CANNON_SOUND_ID, -radius, view.getScreenHeight() / 2 - radius, radius, velocityX, velocityY);
         cannonball.playSound();
     }
 
