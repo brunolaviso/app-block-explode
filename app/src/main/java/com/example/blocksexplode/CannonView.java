@@ -33,6 +33,8 @@ import java.util.Random;
 
 public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
 
+    private static final String TAG = "CannonView";
+
     //constantes para gameplay
     public static final int MISS_PENALTY = 2; //segundos subtraídos em caso de erro
     public static final int HIT_REWARD = 3; //segundos adicionados em caso de acerto
@@ -63,7 +65,8 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
 
     // o tamanho do texto é 1/18 da largura da tela
     public static final double TEXT_SIZE_PERCENT = 1.0 / 18;
-    private CannonThread cannonThread; // contorla o loop do jogo
+
+    private CannonThread cannonThread; // controla o loop do jogo
     private Activity activity; // para exibir a caixa de diálogo GameOver
     private boolean dialogIsDisplayed = false;
 
@@ -94,8 +97,6 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     private Paint textPaint; // objeto Paint usado para desenhar texto
     private Paint backgroundPaint; // objeto Paint para limpar a área do desenho
 
-
-
     // construtor
     public CannonView(Context context, AttributeSet attrs)
     {
@@ -120,21 +121,10 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
         soundMap.put(TARGET_SOUND_ID, soundPool.load(context, R.raw.target_hit, 1));
         soundMap.put(CANNON_SOUND_ID, soundPool.load(context, R.raw.cannon_fire, 1));
         soundMap.put(BLOCKER_SOUND_ID, soundPool.load(context, R.raw.blocker_hit, 1));
+
         textPaint = new Paint();
         backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.WHITE);
-    }
-
-
-    @Override
-    public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
-
-    }
-
-
-    @Override
-    public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
-
     }
 
     // chamado quando o tamanho de SurfaceView muda,
@@ -219,7 +209,7 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
                 (int) (BLOCKER_LENGTH_PERCENT * screenHeight),
                 (float) (BLOCKER_SPEED_PERCENT * screenHeight));
 
-        timeLeft = 10; // inicia a contagem regressiva de 10 segundos
+        timeLeft = 90; // inicia a contagem regressiva de 10 segundos
         shotsFired = 0; // valor inicial de tiros disparados
         totalElapsedTime = 0.0; // tempo decorrido inicia em 0
 
@@ -283,6 +273,8 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     // mostra um componente AlertDialog quando o jogo Termina
     private void showGameOverDialog(final int messageId)
     {
+        /*
+
         // DialogFragment para exibir estatísticas do jogo e comçar outro
         final DialogFragment gameResult = new DialogFragment()
         {
@@ -294,6 +286,7 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
                 // cria a caixa de diálogo exibindo a String para messageId
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getResources().getString(messageId));
+
                 // mostra o total de tiros disparados e o tempo decorrido
                 builder.setMessage(getResources().getString(R.string.resultados_formatado, shotsFired, totalElapsedTime));
                 builder.setPositiveButton(R.string.reset_game,
@@ -325,6 +318,7 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
                     }
                 }
         );
+         */
     }
 
     // desenha o jogo no objeto Canvas
@@ -441,6 +435,74 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
             alignAndFireCannonball(e);
         }
         return true;
+    }
+
+    // Subclasse de Thread para controlar o loop do jogo
+    private class CannonThread extends Thread {
+        private SurfaceHolder surfaceHolder; // para manipular Canvas
+        private boolean threadIsRunning = true; // executando por padrão
+
+        // inicializa o SurfaceHolder
+        public CannonThread(SurfaceHolder holder) {
+            surfaceHolder = holder;
+            setName("CannonThread");
+        }
+
+        // muda o estado de execução
+        public void setRunning(boolean running) {
+            threadIsRunning = running;
+        }
+
+        // controla o loop do jogo
+        @Override
+        public void run() {
+            Canvas canvas = null; // usado para desenhar
+            long previousFrameTime = System.currentTimeMillis();
+            while (threadIsRunning) {
+                try {
+                    // obtém objeto Canvas para desenho exclusivo a partir dessa thread
+                    canvas = surfaceHolder.lockCanvas(null);
+                    // bloqueia o SurfaceHolder para desenho
+                    synchronized(surfaceHolder) {
+                        long currentTime = System.currentTimeMillis(); // tempo atual
+                        // calculo do tempo decorrido, com base no quadro anterior
+                        double elapsedTimeMS = currentTime - previousFrameTime;
+                        totalElapsedTime += elapsedTimeMS / 1000.0;
+                        updatePositions(elapsedTimeMS); // atualiza o estado do jogo
+                        testForCollisions(); // testa colisões contra GameElement
+                        drawGameElements(canvas); // desenha usando o canvas
+                        previousFrameTime = currentTime; // atualiza o tempo anterior
+                    }
+                }
+                finally {
+                    // exibe o conteúdo da tela de desenho em CannonView
+                    // e permite que outras Threads utilizem o objeto Canvas
+                    if (canvas != null)
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                }
+            }
+        }
+    }
+
+    // esconde as barras do sistema e do app
+    private void hideSystemBars() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+            setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_FULLSCREEN |
+                            View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    // mostra as barras do sistema e do app
+    private void showSystemBars() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+            setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
 
