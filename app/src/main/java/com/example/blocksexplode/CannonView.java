@@ -1,13 +1,8 @@
 package com.example.blocksexplode;
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.SurfaceView;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
@@ -26,10 +21,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+//import androidx.fragment.app.DialogFragment;
 
 public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
 
@@ -273,8 +271,6 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
     // mostra um componente AlertDialog quando o jogo Termina
     private void showGameOverDialog(final int messageId)
     {
-        /*
-
         // DialogFragment para exibir estatísticas do jogo e comçar outro
         final DialogFragment gameResult = new DialogFragment()
         {
@@ -314,11 +310,11 @@ public class CannonView extends SurfaceView implements SurfaceHolder.Callback {
                         showSystemBars(); //ativa as barras do sistema
                         dialogIsDisplayed = true;
                         gameResult.setCancelable(false); // caixa de diálogo modal
-                        gameResult.show(activity.getFragmentManager(), "results");
+                        gameResult.show((FragmentManager) null, "results");
                     }
                 }
         );
-         */
+
     }
 
     // desenha o jogo no objeto Canvas
